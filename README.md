@@ -11,7 +11,7 @@ The pipeline iteratively generates candidate molecules using REINVENT4's reinfor
 - [REINVENT4](https://github.com/MolecularAI/REINVENT4) — molecule generation and reinforcement learning
 - [Boltz-2](https://github.com/jwohlwend/boltz) — structure-based scoring via protein-ligand prediction
 
-See `setup_demo/` for sample commit in environment installation instructions on Anvil (Purdue HPC).
+See `setup_demo/` for practice commit in environment installation instructions on Anvil (Purdue HPC).
 
 ## Compute
 
