@@ -4,14 +4,14 @@ A closed-loop generative chemistry pipeline combining **REINVENT4** (molecule ge
 
 ## Overview
 
-The pipeline iteratively generates candidate molecules using REINVENT4's reinforcement learning framework, scores them via Boltz-2 structure prediction, and feeds the results back into the next generation cycle. The current campaign targets **p38 MAPK**.
+The pipeline iteratively generates candidate molecules using REINVENT4's reinforcement learning framework, scores them via Boltz-2 structure prediction, and feeds the results back into the next generation cycle. The current campaign targets **p38 MAPK and CDK2**.
 
 ## Dependencies
 
 - [REINVENT4](https://github.com/MolecularAI/REINVENT4) — molecule generation and reinforcement learning
 - [Boltz-2](https://github.com/jwohlwend/boltz) — structure-based scoring via protein-ligand prediction
 
-See `setup/` for environment installation instructions on Anvil (Purdue HPC).
+See `setup_demo/` for sample commit in environment installation instructions on Anvil (Purdue HPC).
 
 ## Compute
 
