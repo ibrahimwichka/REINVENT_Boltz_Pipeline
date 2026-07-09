@@ -1,0 +1,12 @@
+# REINVENT4 Sampling Config — p38 MAPK14, Iteration 1
+# Run via: sbatch iterations/P38_MAPK14/1/generate.sh
+
+run_type = "sampling"
+device = "cuda:0"
+
+[parameters]
+model_file = "iterations/P38_MAPK14/1/generation/reinvent_pubchem.prior"
+output_file = "iterations/P38_MAPK14/1/generation/generated_molecules.csv"
+num_smiles = 5000
+unique_molecules = true
+randomize_smiles = true
