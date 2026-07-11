@@ -1,0 +1,5 @@
+Job started: Sat Jul 11 15:51:58 EDT 2026
+Running on node: g005
+Generating molecules from REINVENT4 prior...
+Generation complete: Sat Jul 11 15:52:10 EDT 2026
+Output: iterations/CDK2/1/generation/generated_molecules.csv
