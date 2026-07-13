@@ -1,0 +1,12 @@
+# REINVENT4 Sampling Config — CDK2, Iteration 1
+# Run via: sbatch iterations/CDK2/1/generate.sh
+
+run_type = "sampling"
+device = "cuda:0"
+
+[parameters]
+model_file = "iterations/CDK2/1/generation/reinvent_pubchem.prior"
+output_file = "iterations/CDK2/1/generation/generated_molecules.csv"
+num_smiles = 5000
+unique_molecules = true
+randomize_smiles = true
