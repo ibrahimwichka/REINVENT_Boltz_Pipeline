@@ -45,6 +45,10 @@ sequences:
   - ligand:
       id: B
       smiles: "{smiles}"
+
+properties:
+  - affinity:
+      binder: B
 """
 
 def load_smiles(path):
