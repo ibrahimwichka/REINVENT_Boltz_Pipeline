@@ -1,0 +1,4 @@
+fingerprint,n_molecules,n_clusters,n_single_molecule_clusters,pct_single_molecule,biggest_cluster_size,biggest_cluster_dominant_group
+morgan,4877,4494,4263,87.4,28,fr_unbrch_alkane
+avalon,4877,1405,927,19.0,246,fr_NH0
+maccs,4877,98,35,0.7,3296,fr_NH0

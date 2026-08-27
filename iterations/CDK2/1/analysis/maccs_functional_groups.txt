@@ -1,0 +1,641 @@
+
+Cluster 0 (n=3296):
+fr_NH0          2.060073
+fr_Ar_N         1.234223
+fr_benzene      1.209951
+fr_C_O          1.174454
+fr_C_O_noCOO    1.083738
+
+Cluster 1 (n=192):
+fr_NH0            2.296875
+fr_Ar_N           1.869792
+fr_benzene        1.343750
+fr_bicyclic       0.843750
+fr_aryl_methyl    0.713542
+
+Cluster 2 (n=171):
+fr_unbrch_alkane    1.888889
+fr_C_O              0.707602
+fr_NH0              0.666667
+fr_C_O_noCOO        0.643275
+fr_NH1              0.514620
+
+Cluster 3 (n=144):
+fr_benzene      1.500000
+fr_NH0          1.083333
+fr_C_O          0.881944
+fr_NH1          0.777778
+fr_C_O_noCOO    0.743056
+
+Cluster 4 (n=137):
+fr_benzene      1.153285
+fr_halogen      0.773723
+fr_NH1          0.759124
+fr_NH0          0.700730
+fr_sulfonamd    0.605839
+
+Cluster 5 (n=97):
+fr_NH0         2.041237
+fr_Ar_N        1.979381
+fr_benzene     1.577320
+fr_bicyclic    1.123711
+fr_halogen     0.865979
+
+Cluster 6 (n=77):
+fr_benzene         1.467532
+fr_ether           1.194805
+fr_Al_OH           0.714286
+fr_Al_OH_noTert    0.701299
+fr_aryl_methyl     0.597403
+
+Cluster 7 (n=70):
+fr_unbrch_alkane    2.228571
+fr_ether            1.485714
+fr_C_O              1.285714
+fr_benzene          1.057143
+fr_C_O_noCOO        1.014286
+
+Cluster 8 (n=62):
+fr_unbrch_alkane    3.322581
+fr_allylic_oxid     2.500000
+fr_bicyclic         1.532258
+fr_ether            1.500000
+fr_C_O              1.258065
+
+Cluster 9 (n=54):
+fr_C_O          1.537037
+fr_C_O_noCOO    1.333333
+fr_halogen      1.111111
+fr_ether        1.092593
+fr_benzene      1.055556
+
+Cluster 10 (n=53):
+fr_benzene    1.433962
+fr_halogen    1.339623
+fr_ether      1.169811
+fr_methoxy    0.867925
+fr_C_O        0.773585
+
+Cluster 11 (n=42):
+fr_NH1        0.880952
+fr_halogen    0.809524
+fr_benzene    0.738095
+fr_C_O        0.690476
+fr_NH0        0.500000
+
+Cluster 12 (n=37):
+fr_benzene     1.729730
+fr_bicyclic    1.567568
+fr_halogen     1.000000
+fr_ether       0.891892
+fr_C_O         0.864865
+
+Cluster 13 (n=26):
+fr_bicyclic    1.461538
+fr_benzene     1.384615
+fr_halogen     1.346154
+fr_NH0         0.961538
+fr_Ar_N        0.807692
+
+Cluster 14 (n=23):
+fr_halogen        1.434783
+fr_benzene        1.086957
+fr_NH1            0.652174
+fr_ether          0.521739
+fr_aryl_methyl    0.434783
+
+Cluster 15 (n=22):
+fr_halogen     1.727273
+fr_NH0         1.545455
+fr_Ar_N        1.409091
+fr_benzene     1.318182
+fr_bicyclic    1.000000
+
+Cluster 16 (n=21):
+fr_C_O              1.380952
+fr_NH1              0.952381
+fr_C_O_noCOO        0.809524
+fr_unbrch_alkane    0.809524
+fr_Al_COO           0.571429
+
+Cluster 17 (n=19):
+fr_halogen         1.473684
+fr_benzene         1.052632
+fr_alkyl_halide    0.842105
+fr_ether           0.631579
+fr_C_O             0.631579
+
+Cluster 18 (n=18):
+fr_unbrch_alkane    4.833333
+fr_ether            0.611111
+fr_NH1              0.500000
+fr_Al_OH_noTert     0.500000
+fr_Al_OH            0.500000
+
+Cluster 19 (n=17):
+fr_halogen         2.176471
+fr_NH1             1.294118
+fr_benzene         1.058824
+fr_NH0             0.705882
+fr_alkyl_halide    0.705882
+
+Cluster 20 (n=16):
+fr_unbrch_alkane    3.2500
+fr_allylic_oxid     1.2500
+fr_halogen          0.3125
+fr_Al_OH            0.2500
+fr_alkyl_halide     0.1875
+
+Cluster 21 (n=16):
+fr_benzene          1.6875
+fr_allylic_oxid     1.6250
+fr_bicyclic         1.5000
+fr_aryl_methyl      0.8750
+fr_unbrch_alkane    0.7500
+
+Cluster 22 (n=14):
+fr_halogen      2.285714
+fr_benzene      1.142857
+fr_aniline      0.571429
+fr_NH1          0.571429
+fr_C_O_noCOO    0.500000
+
+Cluster 23 (n=13):
+fr_ether      1.076923
+fr_NH0        0.923077
+fr_benzene    0.923077
+fr_NH2        0.769231
+fr_methoxy    0.384615
+
+Cluster 24 (n=12):
+fr_benzene         2.500000
+fr_aniline         1.583333
+fr_bicyclic        1.500000
+fr_allylic_oxid    1.500000
+fr_NH0             1.000000
+
+Cluster 25 (n=12):
+fr_halogen         1.666667
+fr_C_O             1.500000
+fr_C_O_noCOO       1.166667
+fr_benzene         1.000000
+fr_alkyl_halide    0.666667
+
+Cluster 26 (n=11):
+fr_benzene      1.363636
+fr_NH2          0.909091
+fr_C_O          0.818182
+fr_NH1          0.727273
+fr_C_O_noCOO    0.727273
+
+Cluster 27 (n=11):
+fr_halogen         3.090909
+fr_alkyl_halide    2.727273
+fr_benzene         0.727273
+fr_allylic_oxid    0.636364
+fr_NH1             0.545455
+
+Cluster 28 (n=11):
+fr_unbrch_alkane    1.636364
+fr_ether            1.181818
+fr_C_O              1.090909
+fr_C_O_noCOO        1.000000
+fr_ester            0.636364
+
+Cluster 29 (n=10):
+fr_halogen    1.6
+fr_NH0        1.1
+fr_benzene    1.0
+fr_nitrile    0.6
+fr_Ar_N       0.5
+
+Cluster 30 (n=9):
+fr_halogen    1.111111
+fr_benzene    0.888889
+fr_C_O        0.666667
+fr_NH2        0.666667
+fr_sulfide    0.444444
+
+Cluster 31 (n=8):
+fr_Ar_N     1.250
+fr_NH0      1.000
+fr_NH1      0.750
+fr_NH2      0.500
+fr_Ar_NH    0.375
+
+Cluster 32 (n=8):
+fr_bicyclic         4.000
+fr_allylic_oxid     1.875
+fr_benzene          1.625
+fr_unbrch_alkane    1.500
+fr_NH0              0.625
+
+Cluster 33 (n=8):
+fr_benzene        1.000
+fr_C_O_noCOO      0.875
+fr_C_O            0.875
+fr_aryl_methyl    0.875
+fr_ether          0.500
+
+Cluster 34 (n=7):
+fr_halogen    1.857143
+fr_benzene    1.857143
+fr_NH0        1.000000
+fr_NH2        0.571429
+fr_aniline    0.571429
+
+Cluster 35 (n=6):
+fr_NH0             1.333333
+fr_NH2             0.833333
+fr_NH1             0.833333
+fr_allylic_oxid    0.833333
+fr_Imine           0.500000
+
+Cluster 36 (n=5):
+fr_furan          1.0
+fr_bicyclic       0.8
+fr_benzene        0.8
+fr_aryl_methyl    0.8
+fr_C_O            0.8
+
+Cluster 37 (n=5):
+fr_halogen      1.0
+fr_benzene      0.8
+fr_ketone       0.6
+fr_C_O_noCOO    0.6
+fr_C_O          0.6
+
+Cluster 38 (n=5):
+fr_halogen         3.0
+fr_alkyl_halide    2.4
+fr_benzene         2.0
+fr_ether           1.0
+fr_bicyclic        0.6
+
+Cluster 39 (n=5):
+fr_allylic_oxid    1.6
+fr_C_O_noCOO       1.2
+fr_C_O             1.2
+fr_ether           0.6
+fr_ketone          0.6
+
+Cluster 40 (n=4):
+fr_bicyclic        2.50
+fr_allylic_oxid    2.25
+fr_NH0             1.25
+fr_C_O_noCOO       0.50
+fr_NH1             0.50
+
+Cluster 41 (n=4):
+fr_halogen         1.75
+fr_alkyl_halide    1.75
+fr_ether           1.25
+fr_NH0             1.25
+fr_benzene         1.00
+
+Cluster 42 (n=4):
+fr_halogen         2.75
+fr_alkyl_halide    2.00
+fr_benzene         1.25
+fr_NH1             1.00
+fr_NH0             0.75
+
+Cluster 43 (n=4):
+fr_C_O          1.0
+fr_C_O_noCOO    1.0
+fr_NH1          1.0
+fr_NH0          1.0
+fr_amide        1.0
+
+Cluster 44 (n=4):
+fr_unbrch_alkane    2.25
+fr_halogen          1.75
+fr_benzene          1.00
+fr_sulfone          0.50
+fr_aryl_methyl      0.25
+
+Cluster 45 (n=4):
+fr_halogen         1.50
+fr_benzene         1.00
+fr_allylic_oxid    0.75
+fr_NH2             0.50
+fr_NH1             0.25
+
+Cluster 46 (n=4):
+fr_halogen         1.50
+fr_alkyl_halide    1.50
+fr_allylic_oxid    0.75
+fr_benzene         0.50
+fr_C_O             0.25
+
+Cluster 47 (n=4):
+fr_halogen         1.00
+fr_alkyl_halide    1.00
+fr_Al_OH           0.75
+fr_Al_OH_noTert    0.50
+fr_C_O             0.25
+
+Cluster 48 (n=4):
+fr_halogen         2.50
+fr_alkyl_halide    2.00
+fr_ether           1.00
+fr_benzene         0.50
+fr_C_O_noCOO       0.25
+
+Cluster 49 (n=4):
+fr_halogen         3.00
+fr_alkyl_halide    3.00
+fr_allylic_oxid    2.25
+fr_NH0             0.75
+fr_C_O_noCOO       0.25
+
+Cluster 50 (n=3):
+fr_C_O          2.000000
+fr_COO2         1.666667
+fr_COO          1.333333
+fr_NH1          1.000000
+fr_C_O_noCOO    0.666667
+
+Cluster 51 (n=3):
+fr_Al_OH            1.666667
+fr_Al_OH_noTert     1.666667
+fr_ether            1.000000
+fr_unbrch_alkane    1.000000
+fr_allylic_oxid     1.000000
+
+Cluster 52 (n=3):
+fr_halogen         1.333333
+fr_thiophene       0.666667
+fr_allylic_oxid    0.666667
+fr_alkyl_halide    0.666667
+fr_NH0             0.333333
+
+Cluster 53 (n=3):
+fr_halogen         2.000000
+fr_alkyl_halide    1.666667
+fr_sulfide         1.000000
+fr_benzene         1.000000
+fr_NH0             0.666667
+
+Cluster 54 (n=3):
+fr_allylic_oxid    3.333333
+fr_halogen         1.666667
+fr_ketone          0.333333
+fr_C_O_noCOO       0.333333
+fr_C_O             0.333333
+
+Cluster 55 (n=3):
+fr_oxime        0.666667
+fr_NH0          0.666667
+fr_COO2         0.333333
+fr_C_O_noCOO    0.333333
+fr_C_O          0.333333
+
+Cluster 56 (n=2):
+fr_Al_OH           5.0
+fr_Al_OH_noTert    5.0
+fr_NH0             1.5
+fr_benzene         1.0
+fr_ether           0.5
+
+Cluster 57 (n=2):
+fr_bicyclic        3.0
+fr_benzene         2.0
+fr_allylic_oxid    1.5
+fr_halogen         1.0
+fr_aryl_methyl     1.0
+
+Cluster 58 (n=2):
+fr_halogen         1.5
+fr_alkyl_halide    1.5
+fr_methoxy         1.0
+fr_ether           1.0
+fr_NH2             0.5
+
+Cluster 59 (n=2):
+fr_halogen         3.0
+fr_alkyl_halide    2.0
+fr_benzene         1.0
+fr_C_O_noCOO       0.5
+fr_C_O             0.5
+
+Cluster 60 (n=2):
+fr_NH1          1.0
+fr_halogen      1.0
+fr_C_O_noCOO    0.5
+fr_ether        0.5
+fr_methoxy      0.5
+
+Cluster 61 (n=2):
+fr_allylic_oxid    3.0
+fr_benzene         2.0
+fr_bicyclic        1.0
+fr_nitrile         0.5
+fr_NH0             0.5
+
+Cluster 62 (n=2):
+fr_benzene         2.5
+fr_alkyl_halide    0.5
+fr_aryl_methyl     0.5
+fr_halogen         0.5
+
+Cluster 63 (n=1):
+fr_halogen         3.0
+fr_alkyl_halide    3.0
+fr_ether           1.0
+fr_NH0             1.0
+
+Cluster 64 (n=1):
+fr_NH0         2.0
+fr_Ar_N        1.0
+fr_nitrile     1.0
+fr_pyridine    1.0
+
+Cluster 65 (n=1):
+fr_C_O          2.0
+fr_C_O_noCOO    2.0
+fr_Al_OH        1.0
+fr_NH1          1.0
+fr_ketone       1.0
+
+Cluster 66 (n=1):
+fr_benzene               3.0
+fr_aniline               2.0
+fr_para_hydroxylation    2.0
+fr_C_O_noCOO             1.0
+fr_C_O                   1.0
+
+Cluster 67 (n=1):
+fr_Al_OH             1.0
+fr_NH0               1.0
+fr_oxime             1.0
+fr_halogen           1.0
+fr_term_acetylene    1.0
+
+Cluster 68 (n=1):
+fr_NH0          1.0
+fr_piperdine    1.0
+
+Cluster 69 (n=1):
+fr_allylic_oxid    2.0
+fr_C_O_noCOO       1.0
+fr_ketone          1.0
+fr_NH0             1.0
+fr_C_O             1.0
+
+Cluster 70 (n=1):
+fr_NH1        1.0
+fr_NH0        1.0
+fr_benzene    1.0
+fr_C_S        1.0
+fr_hdrzone    1.0
+
+Cluster 71 (n=1):
+fr_C_O          1.0
+fr_C_O_noCOO    1.0
+fr_methoxy      1.0
+fr_ether        1.0
+fr_ester        1.0
+
+Cluster 72 (n=1):
+fr_benzene      1.0
+fr_thiophene    1.0
+
+Cluster 73 (n=1):
+fr_allylic_oxid    3.0
+fr_NH0             1.0
+fr_COO2            1.0
+fr_COO             1.0
+fr_C_O             1.0
+
+Cluster 74 (n=1):
+fr_unbrch_alkane    18.0
+fr_C_S               1.0
+fr_sulfide           1.0
+
+Cluster 75 (n=1):
+fr_NH0        2.0
+fr_NH2        2.0
+fr_guanido    1.0
+fr_nitro      1.0
+fr_Imine      1.0
+
+Cluster 76 (n=1):
+fr_ether      1.0
+fr_benzene    1.0
+fr_epoxide    1.0
+
+Cluster 77 (n=1):
+fr_benzene               2.0
+fr_aniline               1.0
+fr_para_hydroxylation    1.0
+fr_NH1                   1.0
+
+Cluster 78 (n=1):
+fr_bicyclic        8.0
+fr_benzene         7.0
+fr_Al_OH_noTert    1.0
+fr_Al_OH           1.0
+
+Cluster 79 (n=1):
+fr_Al_OH           1.0
+fr_NH2             1.0
+fr_Al_OH_noTert    1.0
+fr_alkyl_halide    1.0
+fr_halogen         1.0
+
+Cluster 80 (n=1):
+fr_NH1        2.0
+fr_NH2        1.0
+fr_hdrzine    1.0
+fr_C_S        1.0
+
+Cluster 81 (n=1):
+fr_aryl_methyl    2.0
+fr_bicyclic       1.0
+
+Cluster 82 (n=1):
+fr_halogen         2.0
+fr_alkyl_halide    2.0
+fr_hdrzone         1.0
+fr_NH0             1.0
+fr_NH1             1.0
+
+Cluster 83 (n=1):
+fr_sulfide    3.0
+fr_halogen    1.0
+fr_benzene    1.0
+
+Cluster 84 (n=1):
+fr_halogen    3.0
+fr_benzene    1.0
+
+Cluster 85 (n=1):
+fr_halogen         4.0
+fr_alkyl_halide    3.0
+fr_COO2            1.0
+fr_COO             1.0
+fr_C_O             1.0
+
+Cluster 86 (n=1):
+fr_C_O             1.0
+fr_C_O_noCOO       1.0
+fr_Al_OH           1.0
+fr_aldehyde        1.0
+fr_Al_OH_noTert    1.0
+
+Cluster 87 (n=1):
+fr_NH1               1.0
+fr_NH0               1.0
+fr_benzene           1.0
+fr_term_acetylene    1.0
+fr_nitrile           1.0
+
+Cluster 88 (n=1):
+fr_term_acetylene    1.0
+fr_benzene           1.0
+
+Cluster 89 (n=1):
+fr_allylic_oxid    2.0
+fr_C_O_noCOO       1.0
+fr_ketone          1.0
+fr_C_O             1.0
+
+Cluster 90 (n=1):
+fr_C_O               1.0
+fr_C_O_noCOO         1.0
+fr_ketone            1.0
+fr_ketone_Topliss    1.0
+
+Cluster 91 (n=1):
+fr_halogen    3.0
+
+Cluster 92 (n=1):
+fr_C_O             1.0
+fr_C_O_noCOO       1.0
+fr_alkyl_halide    1.0
+fr_halogen         1.0
+fr_sulfide         1.0
+
+Cluster 93 (n=1):
+fr_SH              3.0
+fr_allylic_oxid    1.0
+
+Cluster 94 (n=1):
+fr_NH1        2.0
+fr_benzene    1.0
+
+Cluster 95 (n=1):
+fr_SH         1.0
+fr_benzene    1.0
+
+Cluster 96 (n=1):
+fr_allylic_oxid    4.0
+fr_NH2             1.0
+
+Cluster 97 (n=1):
+fr_NH2             3.0
+fr_alkyl_halide    3.0
+fr_halogen         3.0
+fr_allylic_oxid    2.0
+fr_NH0             1.0
