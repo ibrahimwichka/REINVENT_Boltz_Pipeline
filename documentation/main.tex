@@ -1,0 +1,1574 @@
+%=======================================================================
+%  REINVENT4 / Boltz-2 Closed-Loop Generative Pipeline
+%  MANUSCRIPT TEMPLATE  --  Summer/Fall 2026
+%
+%  HOW TO USE THIS FILE
+%  --------------------
+%  1. Compile with: pdflatex -> bibtex -> pdflatex -> pdflatex
+%     (or just hit "Recompile" on Overleaf).
+%  2. Coloured boxes are INSTRUCTIONS, not manuscript text. They tell you
+%     what to write, what to look up, and what figures to make.
+%       * BLUE  "Guidance"  = what this section must accomplish
+%       * ORANGE "Your turn" = you personally write this part
+%       * GREEN "Figure"     = recommended figure, with the script that makes it
+%  3. When you are ready to produce a clean draft for a reader, change
+%     \guidancetrue  ->  \guidancefalse  below. Every box disappears and
+%     you get a normal-looking paper.
+%  4. \TODO{...} marks things nobody has decided yet. Search for "TODO"
+%     before you call any draft finished. \FILL{...} marks a number or
+%     name you are expected to substitute.
+%=======================================================================
+
+\documentclass[11pt]{article}
+
+%---------------------------------------------------------------- layout
+\usepackage[letterpaper,margin=1in]{geometry}
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\setlength{\parskip}{0.35em}
+
+%---------------------------------------------------------------- math
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{bm}
+\usepackage{siunitx}
+
+%---------------------------------------------------------------- floats
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{longtable}
+\usepackage{array}
+\usepackage{multirow}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{pifont}
+
+%---------------------------------------------------------------- code / algos
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+\usepackage{listings}
+\lstset{basicstyle=\ttfamily\footnotesize,breaklines=true,
+        frame=single,rulecolor=\color{gray!50},columns=fullflexible}
+
+%---------------------------------------------------------------- boxes
+\usepackage{xcolor}
+\usepackage[most]{tcolorbox}
+\usepackage{environ}
+
+%---------------------------------------------------------------- refs
+\usepackage[numbers,sort&compress]{natbib}
+\bibliographystyle{unsrtnat}
+\usepackage[colorlinks=true,linkcolor=blue!60!black,citecolor=blue!60!black,
+            urlcolor=blue!60!black]{hyperref}
+\usepackage[capitalise,noabbrev]{cleveref}
+
+%=======================================================================
+%  GUIDANCE TOGGLE  --  flip to \guidancefalse for a clean draft
+%=======================================================================
+\newif\ifguidance
+\guidancetrue
+%\guidancefalse
+
+\NewEnviron{guide}[1][Guidance]{%
+  \ifguidance
+  \begin{tcolorbox}[breakable,enhanced,colback=blue!4,colframe=blue!55!black,
+      boxrule=0.6pt,left=6pt,right=6pt,top=5pt,bottom=5pt,
+      title={\footnotesize\bfseries #1},fonttitle=\bfseries,
+      coltitle=white,colbacktitle=blue!55!black]
+    \footnotesize\BODY
+  \end{tcolorbox}
+  \fi
+}
+
+\NewEnviron{yourturn}[1][Your turn: write this yourself]{%
+  \ifguidance
+  \begin{tcolorbox}[breakable,enhanced,colback=orange!5,colframe=orange!75!black,
+      boxrule=0.6pt,left=6pt,right=6pt,top=5pt,bottom=5pt,
+      title={\footnotesize\bfseries #1},fonttitle=\bfseries,
+      coltitle=white,colbacktitle=orange!75!black]
+    \footnotesize\BODY
+  \end{tcolorbox}
+  \fi
+}
+
+\NewEnviron{figrec}[1][Recommended figure]{%
+  \ifguidance
+  \begin{tcolorbox}[breakable,enhanced,colback=green!4,colframe=green!45!black,
+      boxrule=0.6pt,left=6pt,right=6pt,top=5pt,bottom=5pt,
+      title={\footnotesize\bfseries #1},fonttitle=\bfseries,
+      coltitle=white,colbacktitle=green!45!black]
+    \footnotesize\BODY
+  \end{tcolorbox}
+  \fi
+}
+
+\newcommand{\TODO}[1]{\textcolor{red}{\textbf{[TODO: #1]}}}
+\newcommand{\FILL}[1]{\textcolor{blue!65!black}{\underline{\textsf{#1}}}}
+
+%---------------------------------------------------------------- status glyphs
+\newcommand{\done}{\textcolor{green!55!black}{\ding{51}}}
+\newcommand{\wip}{\textcolor{orange!90!black}{\ding{110}}}
+\newcommand{\blocked}{\textcolor{red!80!black}{\ding{55}}}
+\newcommand{\notstarted}{\textcolor{gray!70}{\ding{109}}}
+
+%=======================================================================
+%  NOTATION MACROS  --  use these everywhere; never hand-type the symbols
+%=======================================================================
+\newcommand{\pbind}{p_{\mathrm{bind}}}          % binder probability
+\newcommand{\yhat}{\hat{y}}                     % Boltz-2 log10 IC50 (uM)
+\newcommand{\ICfifty}{\mathrm{IC}_{50}}
+\newcommand{\pICfifty}{\mathrm{pIC}_{50}}
+\newcommand{\Gmodel}{G}                         % generative model
+\newcommand{\Actives}{\mathcal{A}}              % known-actives benchmark set
+\newcommand{\Batch}{\mathcal{B}}                % raw generated batch
+\newcommand{\Valid}{\mathcal{V}}                % valid, unique molecules
+\newcommand{\Passed}{\mathcal{P}}               % molecules passing the gate
+\newcommand{\TopK}{\mathcal{K}}                 % top-K selected set
+\newcommand{\fpr}{\varphi}                      % fingerprint map
+\newcommand{\Tan}{T}                            % Tanimoto coefficient
+\newcommand{\simmax}{\mathrm{sim}_{\max}}
+\newcommand{\thetahit}{\theta_{\mathrm{hit}}}
+\newcommand{\Tbar}{\bar{T}}
+\newcommand{\Tstar}{T^{*}}
+\newcommand{\Murcko}{\mathrm{Mur}}
+\newcommand{\SAscore}{\mathrm{SA}}
+\newcommand{\QEDs}{\mathrm{QED}}
+\newcommand{\indic}{\mathbb{1}}
+\newcommand{\Ngen}{N}
+\newcommand{\Kk}{K}
+
+%=======================================================================
+\begin{document}
+
+\title{\bfseries An Iterative Closed-Loop Generative Pipeline for De Novo
+and Transfer Learning-Guided Small-Molecule Inhibitor Discovery}
+
+\author{%
+  \FILL{Author One}$^{1}$, \FILL{Author Two}$^{1}$, \FILL{Author Three}$^{1}$,
+  Ibrahim Wichka$^{1}$, \FILL{PI Name}$^{1,*}$ \\[0.4em]
+  \small $^{1}$Stevens Institute of Technology, Hoboken, NJ, USA \\
+  \small $^{*}$Correspondence: \FILL{pi@stevens.edu}
+}
+\date{\today}
+\maketitle
+
+%-----------------------------------------------------------------------
+\begin{abstract}
+\noindent
+\begin{guide}[Write the abstract LAST]
+Target 200--250 words. Use this six-sentence skeleton and expand each into
+1--2 sentences:
+\begin{enumerate}\itemsep0pt
+  \item \textbf{Problem.} Chemical space is enormous; experimental screening
+        is slow and expensive.
+  \item \textbf{Gap.} Generative models produce molecules, but iterative
+        target-specific optimisation and honest validation remain open.
+  \item \textbf{What we built.} A closed loop: REINVENT4 generation
+        $\rightarrow$ Boltz-2 structure-based scoring $\rightarrow$ gated
+        top-$K$ selection $\rightarrow$ transfer-learning fine-tune.
+  \item \textbf{How we validated it.} De novo rediscovery: the known-actives
+        set is withheld from the generator and used only to measure
+        convergence via Tanimoto similarity.
+  \item \textbf{Headline result.} Numbers. Actual numbers. $\Tbar_t$ rose
+        from \FILL{x} to \FILL{y} over \FILL{n} iterations for
+        \FILL{target}; \FILL{n} rediscovery hits at $\thetahit = 0.85$.
+  \item \textbf{Why it matters.} Generalisation across two binding-site
+        architectures (p38 MAPK14, CDK2) plus an interpretable chemical
+        narrative of what the model learns to favour.
+\end{enumerate}
+Do not put citations in the abstract. Do not use the word ``novel''.
+\end{guide}
+
+\TODO{abstract}
+\end{abstract}
+
+\noindent\textbf{Keywords:} generative molecular design; de novo drug design;
+transfer learning; small-molecule inhibitor discovery; protein--ligand
+interaction modeling; structure-based scoring.
+
+%=======================================================================
+\section{Introduction}
+\label{sec:intro}
+%=======================================================================
+
+\begin{guide}[How the Introduction is structured, and why]
+An introduction is an argument, not a summary of everything you read. The
+argument has a fixed shape and it must end where your paper begins:
+
+\smallskip
+\emph{Drug discovery needs better search} $\rightarrow$ \emph{generative models
+search well but can't tell good from bad} $\rightarrow$ \emph{structure-based
+affinity models can tell good from bad but don't search} $\rightarrow$
+\emph{closing the loop between them is the obvious move, and here is what is
+still unresolved about doing it} $\rightarrow$ \emph{our contribution.}
+
+\smallskip
+Each subsection below is one move in that argument. Write each as
+2--4 paragraphs. Delete the \texttt{\textbackslash subsection} headings before submission if
+the venue prefers a continuous introduction --- the headings are scaffolding
+for you, not necessarily for the reader.
+
+\smallskip
+\textbf{Total citation budget:} roughly 35--55 references for the whole
+introduction. If a subsection below has fewer than 4 citations, you have not
+done the literature review for it yet.
+\end{guide}
+
+%-----------------------------------------------------------------------
+\subsection{The scale of the search problem}
+\label{sec:intro:problem}
+
+\begin{yourturn}[Write \S\ref{sec:intro:problem}: 2 paragraphs]
+Establish the stakes with concrete numbers, not adjectives.
+\begin{itemize}\itemsep0pt
+  \item Size of drug-like chemical space (the $10^{23}$--$10^{60}$ estimates ---
+        cite the actual source, do not cite a blog post).
+  \item Cost and timeline of bringing one compound to market; attrition rates
+        by phase.
+  \item What high-throughput screening can and cannot cover, and why "more
+        screening" does not close the gap.
+\end{itemize}
+\textbf{Literature to find:} Polishchuk et al.\ on GDB-17 / enumerable chemical
+space; a recent (2020+) R\&D cost-and-attrition analysis; a review of HTS hit
+rates. \textbf{Search terms:} \texttt{"size of chemical space drug-like"},
+\texttt{"pharmaceutical R\&D productivity attrition"},
+\texttt{"high-throughput screening hit rate review"}.
+\end{yourturn}
+
+\TODO{write \S\ref{sec:intro:problem}}
+
+%-----------------------------------------------------------------------
+\subsection{Generative models for molecular design}
+\label{sec:intro:genmodels}
+
+\begin{yourturn}[Write \S\ref{sec:intro:genmodels}: 3--4 paragraphs]
+This is your main methods-lineage review. Organise it by \emph{representation
+and objective}, not chronologically by year.
+\begin{itemize}\itemsep0pt
+  \item \textbf{Representations:} SMILES-based RNNs/transformers, graph-based
+        generators, 3D/structure-conditioned generators. One paragraph each is
+        plenty; you only need enough to justify why a SMILES-based prior is a
+        reasonable choice here.
+  \item \textbf{Optimisation strategies:} reinforcement learning
+        (REINVENT lineage \citep{olivecrona2017, blaschke2020, loeffler2024}),
+        transfer learning / fine-tuning on curated corpora
+        \citep{segler2018}, genetic algorithms, Bayesian optimisation,
+        and active learning.
+  \item \textbf{The honest limitation:} generated molecules are only as good as
+        the reward. State this plainly --- it is the hinge that sets up
+        \S\ref{sec:intro:scoring}.
+  \item \textbf{Benchmarking:} GuacaMol, MOSES, and the critique that
+        benchmark-optimal molecules are frequently not chemically sensible.
+        This motivates our \S\ref{sec:methods:chem} chemical analysis layer.
+\end{itemize}
+\textbf{Search terms:} \texttt{"de novo molecular generation review 2024"},
+\texttt{"SMILES recurrent neural network molecule generation"},
+\texttt{"GuacaMol MOSES benchmark generative chemistry"},
+\texttt{"reward hacking molecular generative model"}.
+\end{yourturn}
+
+\TODO{write \S\ref{sec:intro:genmodels}}
+
+%-----------------------------------------------------------------------
+\subsection{Structure-based scoring and binding affinity prediction}
+\label{sec:intro:scoring}
+
+\begin{yourturn}[Write \S\ref{sec:intro:scoring}: 3 paragraphs]
+Build the case for why Boltz-2 is the scoring function, and be fair about the
+alternatives you did not use.
+\begin{itemize}\itemsep0pt
+  \item \textbf{Classical docking} (AutoDock Vina, Glide, Gold): fast, but
+        scoring-function accuracy for affinity ranking is famously weak. Find a
+        benchmark paper that quantifies this rather than asserting it.
+  \item \textbf{ML scoring functions and FEP:} where each sits on the
+        accuracy/cost curve. FEP is accurate and far too slow for
+        $5{,}000$ molecules per iteration --- say so with a number.
+  \item \textbf{Co-folding foundation models:} AlphaFold2/3
+        \citep{jumper2021, abramson2024}, Boltz-1 \citep{wohlwend2024},
+        Boltz-2 \citep{boltz2}. Emphasise what makes Boltz-2 usable here
+        specifically: it emits a binder probability \emph{and} a regression
+        affinity estimate in one call, at a cost that fits an iterative loop.
+  \item \textbf{Caveats you must state:} predicted affinity is not measured
+        affinity; performance depends on the quality of the input structure;
+        the model may be susceptible to systematic exploitation by a generator
+        optimising against it.
+\end{itemize}
+\textbf{Search terms:} \texttt{"docking scoring function affinity ranking
+benchmark"}, \texttt{"machine learning scoring function binding affinity
+review"}, \texttt{"Boltz-2 binding affinity"}, \texttt{"co-folding model
+protein ligand"}.
+\end{yourturn}
+
+\TODO{write \S\ref{sec:intro:scoring}}
+
+%-----------------------------------------------------------------------
+\subsection{Closed-loop and active-learning pipelines}
+\label{sec:intro:closedloop}
+
+\begin{yourturn}[Write \S\ref{sec:intro:closedloop}: 2--3 paragraphs]
+This is the subsection that positions \emph{our} contribution, so it needs the
+most careful reading. Find prior work that couples a generator to a
+structure-based oracle in a loop and describe what each did and where it stopped.
+\begin{itemize}\itemsep0pt
+  \item Docking-in-the-loop generative pipelines; "generate--dock--retrain"
+        systems; DiffDock/AlphaFold-scored generation.
+  \item Self-driving / autonomous lab loops, for contrast: they close the loop
+        on \emph{experimental} measurements, we close it on predicted ones.
+        Be explicit that this is a weaker but far cheaper loop.
+  \item \textbf{The gap you are filling.} State it in one sentence you could
+        defend in a talk. Candidate framings: (i) most loops report enrichment
+        of their own scoring function, which is circular; we validate against a
+        withheld set of experimentally measured actives; (ii) most report
+        convergence metrics without characterising \emph{what} the chemistry
+        did; we track scaffolds, functional groups and synthesisability
+        alongside.
+\end{itemize}
+\textbf{Search terms:} \texttt{"closed loop generative docking active learning
+drug design"}, \texttt{"iterative fine-tuning generative model docking score"},
+\texttt{"self-driving laboratory molecular design"}.
+\end{yourturn}
+
+\TODO{write \S\ref{sec:intro:closedloop}}
+
+%-----------------------------------------------------------------------
+\subsection{Target selection: p38 MAPK14 and CDK2}
+\label{sec:intro:targets}
+
+\begin{yourturn}[Write \S\ref{sec:intro:targets}: 2 paragraphs, one per target]
+Justify both targets on \emph{three} axes each: biology, data availability, and
+structural suitability for the scoring model.
+\begin{itemize}\itemsep0pt
+  \item \textbf{p38 MAPK14:} serine/threonine kinase in inflammatory signalling;
+        decades of medicinal chemistry; deep, well-defined, hydrophobic
+        ATP site; a large and chemotype-diverse ChEMBL inhibitor set; heavily
+        used as a benchmark in prior computational papers, which makes our
+        results comparable.
+  \item \textbf{CDK2:} cell-cycle kinase; different pocket character and a
+        different (smaller) inhibitor landscape; serves as the
+        generalisation test.
+  \item \textbf{Say what this pair does and does not test.} Two kinases test
+        transferability across binding-site architecture but \emph{not} beyond
+        the kinase chemotype. Flag this honestly here; return to it in
+        \cref{sec:discussion} as a limitation and future direction.
+\end{itemize}
+\textbf{Literature to find:} 2--3 reviews of p38 inhibitor development
+(including why clinical programs failed --- selectivity/toxicity --- which is
+good framing); 2--3 on CDK2 inhibitors; the PDB entries you actually used, cited
+by their primary papers.
+\end{yourturn}
+
+\TODO{write \S\ref{sec:intro:targets}}
+
+%-----------------------------------------------------------------------
+\subsection{Rediscovery as validation}
+\label{sec:intro:rediscovery}
+
+\begin{yourturn}[Write \S\ref{sec:intro:rediscovery}: 1--2 paragraphs]
+Explain and defend the experimental design, because a sceptical reviewer will
+push on exactly this.
+\begin{itemize}\itemsep0pt
+  \item The known-actives set is ground truth and is \emph{never} shown to the
+        generator --- not to initialise it, not in the fine-tuning corpus. The
+        only place it touches the pipeline is threshold calibration
+        (\cref{sec:methods:calib}), and even there it only sets a scalar.
+  \item Why this is deliberately conservative: a pipeline that recovers known
+        actives without prior structural knowledge of them is evidence that the
+        scoring and optimisation components track real structure--activity
+        relationships rather than scoring artefacts.
+  \item Anticipate the objection: Boltz-2 was trained on public structural and
+        affinity data that may include these very compounds. Address it
+        directly. Suggested framing: this is a limitation of \emph{any}
+        pretrained oracle; it bounds our claim to "the loop navigates toward
+        chemistry the oracle recognises as active", and we quantify how far
+        that goes rather than assuming it.
+\end{itemize}
+\end{yourturn}
+
+\TODO{write \S\ref{sec:intro:rediscovery}}
+
+%-----------------------------------------------------------------------
+\subsection{Contributions}
+\label{sec:intro:contrib}
+
+\begin{guide}[Keep this to 4--5 bullets, each a claim you can point to a figure for]
+Every bullet should map onto a results subsection. If a bullet has no
+corresponding figure or table, either cut it or go make the figure.
+\end{guide}
+
+\noindent In this work we:
+\begin{itemize}\itemsep2pt
+  \item present a closed-loop pipeline coupling REINVENT4 generation with
+        Boltz-2 structure-based scoring through a gated selection function and
+        iterative transfer learning; \TODO{confirm phrasing}
+  \item calibrate the binder-probability gate $\tau$ empirically against the
+        full known-actives benchmark for each target, rather than assuming a
+        threshold; \TODO{}
+  \item validate the loop as a de novo rediscovery benchmark against
+        \FILL{n} withheld experimentally validated inhibitors across two
+        kinase targets; \TODO{}
+  \item characterise the chemical trajectory of optimisation --- scaffold
+        evolution, functional-group enrichment, drug-likeness and synthetic
+        accessibility --- across iterations; \TODO{}
+  \item release all configurations, SLURM scripts and analysis notebooks
+        \TODO{repository URL and license}.
+\end{itemize}
+
+\begin{figrec}[Figure 1 --- pipeline schematic (make this early, it anchors everything)]
+A single-column block diagram of the closed loop:
+REINVENT4 $\Gmodel_t$ $\rightarrow$ Boltz-2 scoring $\rightarrow$ gating
+function $\rightarrow$ top-$\Kk$ $\rightarrow$ transfer learning $\rightarrow$
+$\Gmodel_{t+1}$, with the known-actives set drawn \emph{off} the main path
+(dashed) feeding only calibration and the convergence check.
+\textbf{Source:} adapt the flowchart already in the research plan.
+\textbf{Tool:} TikZ, or draw.io exported to PDF. Do not use a raster screenshot.
+\end{figrec}
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\linewidth]{figures/fig1_pipeline_schematic.pdf}
+%   \caption{Overview of the closed-loop pipeline. \TODO{caption}}
+%   \label{fig:pipeline}
+% \end{figure}
+
+%=======================================================================
+\section{Methods}
+\label{sec:methods}
+%=======================================================================
+
+\begin{guide}[How to use the Methods section]
+Everything in this section that is \emph{shared infrastructure} --- the loop
+structure, the notation, the scoring maths, the metric definitions --- is
+already written for you. Do not rewrite it; you would only introduce
+inconsistencies between sections written by different people.
+
+\smallskip
+What you \emph{do} write is inside the orange boxes: the decisions you made,
+the numbers you chose, the things that went wrong and what you did about them.
+Write those in past tense, first person plural ("we set", "we observed"),
+and be specific. "We used a GPU" is not a method; "each Boltz-2 call ran on one
+NVIDIA A100 with \texttt{--diffusion\_samples 1} and
+\texttt{--sampling\_steps 200}" is.
+
+\smallskip
+\textbf{Use the notation macros.} \texttt{\textbackslash pbind}, \texttt{\textbackslash Tbar}, \texttt{\textbackslash TopK},
+etc.\ are defined in the preamble. If you hand-type $p_{bind}$ somewhere it
+will render differently from everywhere else and a reader will notice.
+\end{guide}
+
+%-----------------------------------------------------------------------
+\subsection{Overview of the closed loop}
+\label{sec:methods:overview}
+
+At iteration $t$, a generative model $\Gmodel_t$ samples a batch of
+$\Ngen$ molecules. Each valid molecule is scored against the prepared target
+structure by Boltz-2, which returns a binder probability and a regression-based
+potency estimate. A gated scoring function discards molecules below a
+binder-probability threshold $\tau$ and ranks the remainder by predicted
+potency; the top $\Kk$ molecules form a training corpus used to fine-tune
+$\Gmodel_t$ by transfer learning, producing $\Gmodel_{t+1}$. Progress is
+measured against a held-out set $\Actives$ of experimentally validated
+inhibitors that is never exposed to the generator.
+\Cref{alg:loop} states the procedure.
+
+\begin{algorithm}[t]
+\caption{Closed-loop generative optimisation for one target}
+\label{alg:loop}
+\begin{algorithmic}[1]
+\Require pretrained prior $\Gmodel_1$; target structure $S$; gate $\tau$;
+         batch size $\Ngen$; corpus size $\Kk$; hit threshold $\thetahit$;
+         held-out actives $\Actives$
+\For{$t = 1, 2, \dots, T_{\max}$}
+  \State $\Batch_t \gets \{m_1,\dots,m_\Ngen\} \sim \Gmodel_t$
+         \Comment{sample SMILES}
+  \State $\Valid_t \gets \mathrm{dedup}(\mathrm{sanitise}(\Batch_t))$
+         \Comment{canonicalise, valence check, drop duplicates}
+  \ForAll{$m \in \Valid_t$}
+    \State $(\pbind(m),\, \yhat(m)) \gets \textsc{Boltz-2}(S, m)$
+  \EndFor
+  \State $\Passed_t \gets \{\, m \in \Valid_t : \pbind(m) \ge \tau \,\}$
+  \State $\TopK_t \gets \operatorname*{arg\,top-}\Kk_{\,m \in \Passed_t} S(m)$
+         \Comment{\cref{eq:score}}
+  \State compute $\Tbar_t,\ \Tstar_t$ against $\Actives$
+         \Comment{\cref{eq:tbar,eq:tstar}}
+  \If{$\Tstar_t \ge \thetahit$}
+    \State \textbf{record} rediscovery hit at iteration $t$
+  \EndIf
+  \State $\Gmodel_{t+1} \gets \textsc{TransferLearn}(\Gmodel_t, \TopK_t)$
+\EndFor
+\end{algorithmic}
+\end{algorithm}
+
+%-----------------------------------------------------------------------
+\subsection{Datasets and target preparation}
+\label{sec:methods:data}
+
+\subsubsection{Known-actives benchmark sets}
+
+For each target we assembled a set $\Actives$ of experimentally validated
+small-molecule inhibitors with measured $\ICfifty$ values, retrieved from
+ChEMBL \citep{zdrazil2024}. Records were filtered to $\ICfifty$ endpoints,
+deduplicated, and canonicalised as SMILES. Measured potencies are expressed
+throughout as
+\begin{equation}
+  \pICfifty = -\log_{10}\!\left(\ICfifty\,[\mathrm{M}]\right).
+  \label{eq:pic50}
+\end{equation}
+Set sizes after curation are given in \cref{tab:datasets}. This set is used
+exclusively (i) to calibrate the gate $\tau$ (\cref{sec:methods:calib}) and
+(ii) as the convergence reference (\cref{sec:methods:convergence}). It is never
+used to initialise, condition, or fine-tune the generative model.
+
+\begin{table}[t]
+\centering
+\caption{Known-actives benchmark sets and prepared target structures.}
+\label{tab:datasets}
+\small
+\begin{tabular}{lccccc}
+\toprule
+Target & UniProt & PDB ID & Resolution (\si{\angstrom}) & $|\Actives|$ & Median $\pICfifty$ \\
+\midrule
+p38 MAPK14 & \FILL{Q16539} & \FILL{PDB} & \FILL{x.xx} & 3{,}860 & \FILL{x.xx} \\
+CDK2       & \FILL{P24941} & \FILL{PDB} & \FILL{x.xx} & 1{,}402 & \FILL{x.xx} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{yourturn}[Fill \cref{tab:datasets} and write 1 paragraph on curation]
+The two $|\Actives|$ counts above are the manifest row counts actually docked
+(\texttt{threshold/<TARGET>/manifest.csv}). Verify them against your own
+\texttt{prepare\_inputs.py} output before submission and update if they differ.
+Then write a short paragraph covering:
+\begin{itemize}\itemsep0pt
+  \item the exact ChEMBL query / export settings and the download date;
+  \item what you filtered out and why (assay type, censored values such as
+        \texttt{>} or \texttt{<}, salts/mixtures, missing SMILES,
+        unparseable SMILES);
+  \item how many records went in and how many survived --- give both numbers;
+  \item whether duplicate measurements of the same compound were averaged or
+        the highest-confidence record kept.
+\end{itemize}
+\end{yourturn}
+
+\subsubsection{Protein structure preparation}
+
+\begin{yourturn}[Write this: 1 paragraph per target]
+State for each target: the PDB entry chosen and why (resolution,
+co-crystallised ligand, conformational state --- DFG-in/DFG-out matters for
+p38); crystallographic waters and heteroatoms removed; hydrogens added;
+protonation state assignment and at what pH; how the binding site was defined
+for the Boltz-2 input; and the exact protein sequence used in the YAML
+(state whether it is the full construct or a truncation, and give residue
+ranges). If you used a predicted structure anywhere, say so and note the
+caveat that scoring quality is contingent on structural accuracy
+\citep{abramson2024}.
+\end{yourturn}
+
+\TODO{structure preparation paragraphs}
+
+\subsubsection{Molecular representation}
+
+All generated and reference molecules are canonicalised as SMILES using
+RDKit \citep{rdkit}. For similarity computations, each molecule $m$ is mapped
+to a Morgan (ECFP4-equivalent) fingerprint \citep{rogers2010}
+\begin{equation}
+  \fpr(m) \in \{0,1\}^{2048},
+  \qquad \text{radius } r = 2, \ \text{fold size } 2048,
+  \label{eq:fp}
+\end{equation}
+and the Tanimoto coefficient between two molecules is
+\begin{equation}
+  \Tan\!\left(\fpr(m), \fpr(m')\right)
+  = \frac{\left|\fpr(m) \wedge \fpr(m')\right|}
+         {\left|\fpr(m) \vee \fpr(m')\right|} \in [0,1].
+  \label{eq:tanimoto}
+\end{equation}
+
+%-----------------------------------------------------------------------
+\subsection{Molecular generation}
+\label{sec:methods:gen}
+
+Generation uses REINVENT4 \citep{loeffler2024} in sampling mode
+(\texttt{run\_type = "sampling"}), which draws from the model without
+modifying its weights. At $t=1$ the model $\Gmodel_1$ is the unmodified
+pretrained prior \texttt{reinvent\_pubchem.prior}, trained on PubChem and
+carrying no knowledge of either target; for $t \ge 2$, $\Gmodel_t$ is the
+checkpoint produced by the transfer-learning update of iteration $t-1$
+(\cref{sec:methods:tl}). Iteration 1 is therefore the only round sampled from a
+fully unbiased distribution.
+
+Each iteration samples $\Ngen = 5{,}000$ SMILES per target with
+\texttt{unique\_molecules = true} (post-hoc deduplication) and
+\texttt{randomize\_smiles = true} (atom-ordering augmentation during sampling).
+The batch size is a fixed design choice applied uniformly to both targets and
+is unrelated to the size of either target's benchmark set. Sampled strings are
+sanitised and canonicalised with RDKit; molecules failing valence or
+sanitisation checks are discarded, so $|\Valid_t| \le \Ngen$.
+
+\begin{yourturn}[Write 1 short paragraph + fill \cref{tab:genconfig}]
+Report, per target and per iteration: how many of the $5{,}000$ sampled strings
+survived canonicalisation and deduplication, and whether that fraction changed
+as iterations progressed. A \emph{falling} valid fraction across iterations is
+worth commenting on --- it can indicate the fine-tuned model drifting toward
+degenerate strings. Also state the software version
+(\texttt{reinvent --version}) and the random seed if you set one.
+\end{yourturn}
+
+\begin{table}[h]
+\centering
+\caption{REINVENT4 sampling configuration (identical across targets and iterations).}
+\label{tab:genconfig}
+\small
+\begin{tabular}{lll}
+\toprule
+Parameter & Value & Note \\
+\midrule
+\texttt{run\_type}          & \texttt{sampling} & weights unchanged \\
+\texttt{model\_file}        & prior ($t=1$) / fine-tuned ckpt ($t\ge2$) & \cref{sec:methods:tl} \\
+\texttt{num\_smiles}        & 5{,}000 & fixed by design, both targets \\
+\texttt{unique\_molecules}  & \texttt{true} & post-hoc deduplication \\
+\texttt{randomize\_smiles}  & \texttt{true} & atom-order augmentation \\
+\texttt{device}             & \texttt{cuda:0} & one NVIDIA A100 \\
+REINVENT4 version           & \FILL{x.y.z} & \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%-----------------------------------------------------------------------
+\subsection{Structure-based scoring with Boltz-2}
+\label{sec:methods:boltz}
+
+Every molecule is evaluated by a single Boltz-2 \citep{boltz2} call taking the
+target protein sequence and one ligand SMILES, with an explicit
+\texttt{properties: affinity: binder} declaration in the input YAML so that the
+affinity head is invoked. Each call returns:
+\begin{itemize}\itemsep0pt
+  \item a predicted complex structure and confidence metrics
+        (pTM, ipTM, pLDDT);
+  \item $\pbind(m) \in [0,1]$, the predicted probability that $m$ is a binder
+        at the site (\texttt{affinity\_probability\_binary});
+  \item $\yhat(m) = \log_{10}\widehat{\ICfifty}(m)$ with
+        $\widehat{\ICfifty}$ in \textmu M
+        (\texttt{affinity\_pred\_value}); lower is more potent.
+\end{itemize}
+For comparison with experimental values on a common scale we convert
+\begin{equation}
+  \widehat{\pICfifty}(m) \;=\; 6 - \yhat(m),
+  \label{eq:convert}
+\end{equation}
+which follows from \cref{eq:pic50} and the \textmu M unit convention.
+
+Identical inference settings were used for calibration and for scoring
+generated molecules:
+\texttt{--model boltz2},
+\texttt{--diffusion\_samples 1},
+\texttt{--sampling\_steps 200},
+\texttt{--diffusion\_samples\_affinity 5},
+\texttt{--affinity\_mw\_correction}.
+
+\begin{yourturn}[Write 1 paragraph]
+Cover: Boltz-2 version/commit; wall-clock cost per molecule and total GPU-hours
+consumed per target; how failures were handled (molecules that produced no
+affinity JSON and were dropped, and how many); whether the calibration array
+job and the generated-molecule docking job used the same code path (they should
+--- if they differed at all, say how). If you hit the \SI{24}{\hour} walltime on
+the generated-molecule docking run, describe what you did and whether any
+molecules were re-docked.
+\end{yourturn}
+
+%-----------------------------------------------------------------------
+\subsection{Threshold calibration}
+\label{sec:methods:calib}
+
+\begin{guide}[Why this subsection exists]
+$\tau$ is the one number in the whole pipeline chosen by looking at the actives.
+Reviewers will ask whether that leaks information. Your defence is that $\tau$
+is a scalar derived from a \emph{score distribution}, not from any structural
+feature of any active, and that it is fixed before iterative optimisation
+begins. Make sure the text says this explicitly.
+\end{guide}
+
+Before iterative optimisation, we characterised the Boltz-2 scoring landscape
+for each target. We evaluated (i) the complete known-actives set $\Actives$ as a
+positive control and (ii) a background sample of
+$n_{\mathrm{bg}} = \FILL{500\text{--}1{,}000}$ molecules drawn from the
+unmodified prior with no reward signal.
+
+Two properties were required before committing a target to iterative runs.
+First, \emph{separation}: the actives must score above the background on both
+outputs. We quantify this with the rank-biserial form of the Mann--Whitney $U$
+statistic, equivalent to the probability that a randomly chosen active
+out-scores a randomly chosen background molecule,
+\begin{equation}
+  \mathrm{AUC}
+  = \Pr\!\left[\pbind(a) > \pbind(b)\right],
+  \qquad a \sim \Actives,\; b \sim \mathrm{background},
+  \label{eq:auc}
+\end{equation}
+with $\mathrm{AUC} = 0.5$ indicating no discrimination. Second,
+\emph{potency correlation}: predicted versus experimental potency across
+$\Actives$, reported as Pearson $r$ and Spearman $\rho$ between
+$\widehat{\pICfifty}$ (\cref{eq:convert}) and measured $\pICfifty$.
+
+The gate $\tau$ is then chosen to sit meaningfully above the background median
+while remaining attainable by a non-trivial fraction of unbiased samples:
+\begin{equation}
+  \tau \;=\;
+  \operatorname*{arg\,max}_{\tau' \in \{0.3,\,0.4,\,0.5\}}
+  \Big\{\,\tau' \;:\;
+    \Pr_{b}\!\left[\pbind(b) \ge \tau'\right] \ge \epsilon
+  \,\Big\},
+  \label{eq:tau}
+\end{equation}
+where $\epsilon = \FILL{0.0x}$ is the minimum background pass rate needed to
+keep the transfer-learning corpus populated in early iterations. A gate that
+excludes every unbiased molecule suppresses the learning signal entirely; a
+gate that admits the majority pollutes the corpus with non-binders.
+
+\begin{yourturn}[Fill \cref{tab:calibration} and write 1--2 paragraphs]
+Report per target: the $\pbind$ percentiles (10/25/50/75/90) for both actives
+and background; the fraction of each population clearing $0.3$, $0.4$, $0.5$;
+the AUC from \cref{eq:auc}; Pearson $r$ and Spearman $\rho$; and the $\tau$ you
+finally chose \emph{with the sentence of reasoning that led to it}. If the two
+targets ended up with different $\tau$, say so and justify it --- that is a
+legitimate finding, not an inconsistency to hide. Also fix $\epsilon$ in
+\cref{eq:tau} to the value you actually used, or replace the equation with a
+plain sentence if you selected $\tau$ by inspection.
+\end{yourturn}
+
+\begin{table}[h]
+\centering
+\caption{Boltz-2 calibration summary. Percentiles are of $\pbind$.}
+\label{tab:calibration}
+\small
+\begin{tabular}{llcccccc}
+\toprule
+Target & Population & $P_{10}$ & $P_{25}$ & $P_{50}$ & $P_{75}$ & $P_{90}$ & $\Pr[\pbind \ge \tau]$ \\
+\midrule
+\multirow{2}{*}{p38 MAPK14}
+  & known actives & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+  & prior background & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+\midrule
+\multirow{2}{*}{CDK2}
+  & known actives & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+  & prior background & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%-----------------------------------------------------------------------
+\subsection{Gated scoring function and candidate selection}
+\label{sec:methods:score}
+
+The optimisation objective is a gated score. For molecule $m$,
+\begin{equation}
+  S(m) =
+  \begin{cases}
+    -\,\yhat(m), & \pbind(m) \ge \tau, \\[2pt]
+    0,           & \text{otherwise},
+  \end{cases}
+  \label{eq:score}
+\end{equation}
+where the negation makes lower predicted $\ICfifty$ (higher potency)
+correspond to a higher score, consistent with maximisation. Molecules below the
+gate are excluded from all downstream steps. Among the survivors
+$\Passed_t = \{m \in \Valid_t : \pbind(m) \ge \tau\}$, candidates are ranked by
+$S(m)$ and the top $\Kk$ retained:
+\begin{equation}
+  \TopK_t
+  = \operatorname*{arg\,top-}{\Kk}_{\,m \in \Passed_t} S(m),
+  \qquad \Kk \in [200, 500].
+  \label{eq:topk}
+\end{equation}
+When $|\Passed_t| < \Kk$ the entire passing set is used.
+
+\begin{guide}[Alternative scoring formulations --- describe these only if you ran them]
+The plan lists two alternatives. If you ran either as an ablation, report it in
+\cref{sec:results:ablation}; if not, mention them in one sentence in
+\cref{sec:discussion} as untested design choices rather than claiming them.
+\begin{itemize}\itemsep0pt
+  \item \textbf{Option A, composite:}
+        $S_A(m) = w_1\,\pbind(m) + w_2\,(-\yhat(m))$ --- a soft gradient over
+        both outputs, at the risk of admitting high-$\pbind$ non-binders.
+  \item \textbf{Option C, hard filter then potency only:} $\pbind$ used purely
+        as a binary filter, ranking by $\yhat$ alone --- a cleaner potency
+        signal that discards the probabilistic gradient which may be
+        informative when few molecules pass.
+\end{itemize}
+\end{guide}
+
+\begin{yourturn}[State your actual $\tau$ and $\Kk$, and why]
+One short paragraph. Give the final values used for each target. If $\Kk$ was
+adapted because too few molecules passed the gate in early iterations, describe
+the rule you used --- an unstated adaptive $\Kk$ is a reproducibility hole.
+\end{yourturn}
+
+%-----------------------------------------------------------------------
+\subsection{Transfer-learning update}
+\label{sec:methods:tl}
+
+The corpus $\TopK_t$ is used to fine-tune $\Gmodel_t$ in REINVENT4 transfer
+learning mode (\texttt{run\_type = "transfer\_learning"}), shifting the model's
+output distribution toward the chemical features associated with high $S(m)$
+and producing the checkpoint $\Gmodel_{t+1}$. Formally, fine-tuning minimises
+the negative log-likelihood of the selected corpus under the model,
+\begin{equation}
+  \mathcal{L}(\theta)
+  = -\frac{1}{|\TopK_t|}
+    \sum_{m \in \TopK_t} \sum_{i=1}^{|m|}
+      \log P_\theta\!\left(s_i \mid s_{<i}\right),
+  \label{eq:tlloss}
+\end{equation}
+where $s_1,\dots,s_{|m|}$ are the SMILES tokens of $m$ and $\theta$ is
+initialised from $\Gmodel_t$ rather than from scratch. Each iteration's prior is
+therefore the previous iteration's fine-tuned checkpoint, which is what makes
+the loop compounding.
+
+\begin{yourturn}[Fill \cref{tab:tlconfig} and write 1 paragraph]
+Hyperparameters must be reported --- this is the step that determines whether
+the loop converges or collapses. Also address: were these held fixed across all
+iterations (they should be, unless an ablation says otherwise)? Did you monitor
+validation loss or early-stop? Did you observe mode collapse --- a sharp drop in
+unique molecules or unique scaffolds after a fine-tune --- and if so at which
+iteration?
+\end{yourturn}
+
+\begin{table}[h]
+\centering
+\caption{Transfer-learning hyperparameters, held fixed across iterations.}
+\label{tab:tlconfig}
+\small
+\begin{tabular}{ll}
+\toprule
+Parameter & Value \\
+\midrule
+Corpus size $\Kk$              & \FILL{} \\
+Epochs                         & \FILL{} \\
+Learning rate                  & \FILL{} \\
+Batch size                     & \FILL{} \\
+Optimiser                      & \FILL{} \\
+Validation split               & \FILL{none / x\%} \\
+Early stopping                 & \FILL{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%-----------------------------------------------------------------------
+\subsection{Convergence metrics}
+\label{sec:methods:convergence}
+
+Convergence is measured by structural similarity between generated molecules
+and the held-out actives $\Actives$. For each generated molecule $m$ we define
+its nearest-neighbour similarity to the benchmark set,
+\begin{equation}
+  \simmax(m, \Actives)
+  = \max_{a \in \Actives}\,
+    \Tan\!\left(\fpr(m), \fpr(a)\right).
+  \label{eq:simmax}
+\end{equation}
+Two summary statistics are recorded per iteration. The \emph{mean
+nearest-neighbour similarity} over the selected set,
+\begin{equation}
+  \Tbar_t
+  = \frac{1}{|\TopK_t|} \sum_{m \in \TopK_t} \simmax(m, \Actives),
+  \label{eq:tbar}
+\end{equation}
+is the primary convergence signal: a monotonically increasing $\Tbar_t$
+indicates the loop is navigating toward known-active chemical space. The
+\emph{maximum} similarity,
+\begin{equation}
+  \Tstar_t = \max_{m \in \TopK_t}\, \simmax(m, \Actives),
+  \label{eq:tstar}
+\end{equation}
+is used for hit detection: molecule $m$ is declared a \emph{rediscovery hit}
+when $\simmax(m,\Actives) \ge \thetahit$, with $\thetahit = 0.85$ for
+near-identical scaffolds and $\thetahit = 1.0$ for an exact canonical SMILES
+match. The first iteration at which $\Tstar_t \ge \thetahit$ is recorded as the
+convergence iteration. As a null reference we also report $\Tbar_0$, computed
+identically on an unbiased sample from the prior, so that any rise in $\Tbar_t$
+is read against the level expected by chance.
+
+Because the convergence iteration is not known in advance, no fixed stopping
+criterion is imposed a priori; $\Tbar_t$ and $\Tstar_t$ are monitored per
+iteration and the run terminates on hit detection or on reaching
+$T_{\max} = \FILL{n}$ iterations.
+
+\begin{guide}[Two things to compute that the plan does not require but reviewers will want]
+\begin{enumerate}\itemsep0pt
+  \item \textbf{A random-baseline curve.} Run the metric on $\Kk$ molecules
+        sampled from the untouched prior at every iteration. If $\Tbar_t$ rises
+        and the baseline is flat, your effect is real. Without it, the rise is
+        uninterpretable.
+  \item \textbf{Error bars.} $\Tbar_t$ is a mean over $\Kk$ molecules --- report
+        the standard error, or better, bootstrap a 95\% CI. A convergence curve
+        with no uncertainty band is the most common criticism of this kind of
+        plot.
+\end{enumerate}
+\end{guide}
+
+%-----------------------------------------------------------------------
+\subsection{Iterative chemical analysis}
+\label{sec:methods:chem}
+
+In parallel with convergence tracking, the selected set $\TopK_t$ is
+characterised chemically at each iteration.
+
+\paragraph{Scaffold tracking.}
+Each molecule is reduced to its Bemis--Murcko scaffold \citep{bemis1996},
+$\Murcko(m)$, using the RDKit implementation. Scaffold diversity at iteration
+$t$ is the normalised count of distinct scaffolds,
+\begin{equation}
+  D_t = \frac{\left|\{\, \Murcko(m) : m \in \TopK_t \,\}\right|}{|\TopK_t|}
+  \in (0, 1],
+  \label{eq:scaffolddiv}
+\end{equation}
+with $D_t \to 0$ indicating collapse onto a dominant chemotype. We additionally
+report the scaffold overlap with the benchmark set,
+$\left|\{\Murcko(m) : m \in \TopK_t\} \cap \{\Murcko(a) : a \in \Actives\}\right|$,
+and the scaffold transition between consecutive iterations, comparing the most
+frequent scaffolds of $\TopK_t$ and $\TopK_{t+1}$ to identify which ring systems
+the model retains, discards, or introduces.
+
+\paragraph{Functional-group trajectories.}
+For a set $\mathcal{G}$ of SMARTS patterns covering hydrogen-bond donors and
+acceptors (hydroxyl, amine, carbonyl, amide), halogens (F, Cl, Br), aromatic
+systems, and basic nitrogen heterocycles (piperidine, piperazine, morpholine),
+the frequency of group $g$ at iteration $t$ is
+\begin{equation}
+  f_{g,t}
+  = \frac{1}{|\TopK_t|}
+    \sum_{m \in \TopK_t} \indic\!\left[m \text{ matches } g\right].
+  \label{eq:fg}
+\end{equation}
+Monotone trends in $f_{g,t}$ are interpreted against the known character of the
+target binding site. The amine pattern excludes amide nitrogens so that amides
+are not double-counted.
+
+\paragraph{R-group decomposition.}
+Where a dominant core emerges, molecules matching it are decomposed into core
+plus substituents at each attachment point, and substituents at position $R_j$
+are ranked by mean predicted score,
+\begin{equation}
+  \bar{S}_{R_j = v}
+  = \frac{1}{|\{m : R_j(m) = v\}|}
+    \sum_{m\,:\,R_j(m) = v} S(m),
+  \label{eq:sar}
+\end{equation}
+yielding a computational structure--activity table.
+
+\paragraph{Drug-likeness and synthesisability.}
+For every molecule in $\TopK_t$ we compute molecular weight, calculated
+$\log P$, hydrogen-bond donor and acceptor counts and topological polar surface
+area; the fraction violating each Lipinski threshold \citep{lipinski1997}
+($\mathrm{MW} > 500$, $c\log P > 5$, $\mathrm{HBD} > 5$, $\mathrm{HBA} > 10$);
+QED \citep{bickerton2012}; and the Ertl--Schuffenhauer synthetic accessibility
+score \citep{ertl2009}, on a scale from 1 (easy) to 10 (difficult). Together
+these define a chemical feasibility envelope; systematic drift outside it across
+iterations is flagged as possible over-optimisation against the scoring
+function at the expense of chemical viability.
+
+\paragraph{Red-flag screening.}
+Candidates are screened against the RDKit PAINS filter catalogue
+\citep{baell2010}. A PAINS match is recorded as an annotation for expert review,
+not as an automatic disqualification.
+
+\paragraph{Descriptor-space projection.}
+A PCA is fitted on the standardised descriptor matrix of $\Actives$ alone
+(MW, $c\log P$, HBD, HBA, TPSA, QED) and each iteration's $\TopK_t$ is projected
+into that fixed space. Fitting on the actives only keeps the axes constant
+across iterations so that successive plots are directly comparable.
+
+\begin{yourturn}[Write 1 paragraph on expert structural annotation]
+Describe your manual review protocol from the plan's Section 3.6: how many
+molecules per iteration (5--10), how they were selected (diversity-prioritised,
+not just top-scoring), who reviewed them, and what was recorded --- structural
+novelty relative to $\Actives$ and the literature, qualitative synthetic
+feasibility, plausibility of the predicted binding mode, and red-flag
+substructures. Say plainly that this step is qualitative.
+\end{yourturn}
+
+%-----------------------------------------------------------------------
+\subsection{Computational environment and reproducibility}
+\label{sec:methods:compute}
+
+All generation, scoring, and fine-tuning jobs ran on the Anvil cluster
+(Purdue University / NSF ACCESS) under the SLURM scheduler, using
+NVIDIA A100 GPUs. REINVENT4 and Boltz-2 were installed in separate conda
+environments (Python \FILL{3.11} and \FILL{3.10} respectively) because of
+incompatible PyTorch and CUDA dependencies. Chemical analysis was performed in
+Python with RDKit \citep{rdkit}, pandas, scikit-learn, and matplotlib.
+
+\begin{yourturn}[Fill in and complete]
+Report software versions for everything in \cref{tab:software}, total GPU-hours
+per target, and the repository URL and commit hash corresponding to the results
+in this paper. A version table is the cheapest possible reproducibility win ---
+do not skip it.
+\end{yourturn}
+
+\begin{table}[h]
+\centering
+\caption{Software versions.}
+\label{tab:software}
+\small
+\begin{tabular}{ll@{\hspace{2em}}ll}
+\toprule
+Component & Version & Component & Version \\
+\midrule
+REINVENT4 & \FILL{} & RDKit      & \FILL{} \\
+Boltz-2   & \FILL{} & scikit-learn & \FILL{} \\
+PyTorch   & \FILL{} & pandas     & \FILL{} \\
+CUDA      & \FILL{12.6} & Python & \FILL{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Data and code availability.}
+\TODO{repository URL, commit hash, DOI/Zenodo archive, license}
+
+%=======================================================================
+\section{Results}
+\label{sec:results}
+%=======================================================================
+
+\begin{guide}[How to use the Results section --- read this before writing anything]
+This section is deliberately built as a \textbf{living tracker first, paper
+second}. \Cref{sec:results:tracker} is a status board you update as work lands;
+\cref{sec:results:p38,sec:results:cdk2} contain one short log block per
+iteration that you fill in the same week the iteration finishes, while you still
+remember what happened.
+
+\smallskip
+When it is time to write the actual prose Results, you will not be starting from
+a blank page --- you will be summarising your own logs. That is the entire point
+of the structure. Keep the logs even after the prose exists; move them to an
+appendix or delete them at the very end.
+
+\smallskip
+\textbf{Rules for the prose you eventually write:}
+\begin{itemize}\itemsep0pt
+  \item Results state what happened. Interpretation goes in
+        \cref{sec:discussion}. "$\Tbar_t$ rose from $0.21$ to $0.34$" belongs
+        here; "suggesting the model learned the hinge-binding motif" does not.
+  \item Every number in the text must also appear in a table or figure, and
+        vice versa.
+  \item Report the failures. An iteration where $\Tbar_t$ dropped, a target
+        where calibration showed no separation, a fine-tune that collapsed
+        diversity --- these make the paper more credible, not less.
+\end{itemize}
+\end{guide}
+
+%-----------------------------------------------------------------------
+\subsection{Pipeline progress tracker}
+\label{sec:results:tracker}
+
+\begin{guide}[Legend and instructions]
+Update \cref{tab:status-p38,tab:status-cdk2} as each stage completes.
+Glyphs: \done\ complete and pushed to \texttt{main}\quad
+\wip\ in progress / job running\quad
+\blocked\ blocked or failed\quad
+\notstarted\ not started.
+Add a new row for each iteration as it begins. The "Owner" column is who to ask
+when something in that row is unclear six weeks from now.
+\end{guide}
+
+\begin{table}[h]
+\centering
+\caption{Execution status --- p38 MAPK14. Owner initials in parentheses.}
+\label{tab:status-p38}
+\small
+\begin{tabular}{clccccl}
+\toprule
+Iter & Stage set & Gen & Dock & Gate + TL & Chem.\ analysis & Last update \\
+\midrule
+0 & calibration ($\tau$) & --- & \wip\ (\FILL{MB}) & --- & \notstarted & \FILL{date} \\
+1 & prior sampling       & \done\ (\FILL{}) & \wip\ (\FILL{}) & \notstarted & \notstarted & \FILL{date} \\
+2 & \FILL{}              & \notstarted & \notstarted & \notstarted & \notstarted & \FILL{date} \\
+3 & \FILL{}              & \notstarted & \notstarted & \notstarted & \notstarted & \FILL{date} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[h]
+\centering
+\caption{Execution status --- CDK2. Owner initials in parentheses.}
+\label{tab:status-cdk2}
+\small
+\begin{tabular}{clccccl}
+\toprule
+Iter & Stage set & Gen & Dock & Gate + TL & Chem.\ analysis & Last update \\
+\midrule
+0 & calibration ($\tau$) & --- & \wip\ (\FILL{AK}) & --- & \notstarted & \FILL{date} \\
+1 & prior sampling       & \done\ (\FILL{}) & \wip\ (\FILL{}) & \notstarted & \notstarted & \FILL{date} \\
+2 & \FILL{}              & \notstarted & \notstarted & \notstarted & \notstarted & \FILL{date} \\
+3 & \FILL{}              & \notstarted & \notstarted & \notstarted & \notstarted & \FILL{date} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\noindent
+\Cref{tab:master} is the quantitative counterpart: one row per completed
+iteration per target, and the table that most of the Results prose will be
+written from.
+
+\begin{table}[t]
+\centering
+\caption{Master results tracker. One row per completed iteration.
+$|\Valid_t|$: valid unique molecules of $\Ngen = 5{,}000$ sampled.
+$|\Passed_t|$: molecules with $\pbind \ge \tau$.
+$\bar{S}$: mean gated score over $\TopK_t$.
+$\Tbar_t$, $\Tstar_t$: \cref{eq:tbar,eq:tstar}.
+$D_t$: scaffold diversity, \cref{eq:scaffolddiv}.
+Hits: molecules with $\simmax \ge \thetahit = 0.85$.}
+\label{tab:master}
+\small
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{llrrrrrrrrrr}
+\toprule
+Target & $t$ & $|\Valid_t|$ & $|\Passed_t|$ & $\Kk$ & $\bar{S}$ &
+$\Tbar_t$ & $\Tstar_t$ & Hits & $D_t$ & $\overline{\QEDs}$ & $\overline{\SAscore}$ \\
+\midrule
+\multirow{4}{*}{p38 MAPK14}
+ & 0\textsuperscript{a} & --- & --- & --- & --- & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+ & 1 & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+ & 2 & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+ & 3 & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+\midrule
+\multirow{4}{*}{CDK2}
+ & 0\textsuperscript{a} & --- & --- & --- & --- & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+ & 1 & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+ & 2 & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+ & 3 & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+\midrule
+\multicolumn{12}{l}{\footnotesize
+  \textsuperscript{a}Row $t=0$ is the unbiased-prior null reference: the same
+  metrics computed on $\Kk$ molecules sampled from} \\
+\multicolumn{12}{l}{\footnotesize
+  \phantom{a}the untouched prior. Every claim of improvement is relative to this row.} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+%-----------------------------------------------------------------------
+\subsection{Boltz-2 calibration}
+\label{sec:results:calib}
+
+\begin{yourturn}[Write 2--3 paragraphs. This is the first real result in the paper.]
+Report, per target: whether known actives separated from the prior background
+on $\pbind$, by how much (\cref{eq:auc}), and how predicted potency correlated
+with measured potency ($r$, $\rho$, $n$). Then state the chosen $\tau$ and the
+fraction of background molecules it admits.
+
+\smallskip
+\textbf{This subsection carries a go/no-go decision, so be direct about it.}
+If a target showed weak or absent separation, say so here and explain what you
+concluded --- structural preparation issue, or a genuine limitation of Boltz-2
+for that target. Either is a publishable finding. Burying it is not an option,
+because a reader can tell from the correlation plot.
+\end{yourturn}
+
+\TODO{calibration results}
+
+\begin{figrec}[Figure 2 --- calibration (2 panels)]
+\textbf{(a)} $\pbind$ distributions, known actives vs.\ prior background,
+overlaid density histograms per target, with vertical lines at
+$\tau \in \{0.3, 0.4, 0.5\}$.
+\textbf{(b)} Predicted vs.\ experimental $\pICfifty$ scatter, with $y=x$
+reference line, Pearson $r$ annotated, and a marginal histogram.
+\textbf{Source:} \texttt{threshold/<TARGET>/analyze\_calibration.py} already
+produces \texttt{p\_bind\_distribution.png} and
+\texttt{pIC50\_correlation.png}; combine into one two-panel figure with shared
+styling rather than pasting two separate PNGs.
+\textbf{Watch for:} save as PDF or 300\,dpi PNG. The default 150\,dpi in the
+tutorial script is fine for a Colab preview and too low for print.
+\end{figrec}
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=\linewidth]{figures/fig2_calibration.pdf}
+%   \caption{Boltz-2 calibration. \TODO{caption}}
+%   \label{fig:calibration}
+% \end{figure}
+
+%-----------------------------------------------------------------------
+\subsection{p38 MAPK14}
+\label{sec:results:p38}
+
+\begin{guide}[Per-iteration log blocks --- fill one in per iteration, the week it finishes]
+Copy the block below for each new iteration. Keep them terse; they are notes to
+yourself, and later the raw material for the prose. The "Observations" field is
+the one that matters most and the one people skip --- write two honest sentences
+about what the chemistry looked like and anything that surprised you.
+\end{guide}
+
+\subsubsection*{Iteration 1 --- unbiased prior}
+\begin{guide}[Log]
+\begin{tabular}{@{}p{0.28\linewidth}p{0.66\linewidth}@{}}
+Date completed        & \FILL{} \\
+Model $\Gmodel_1$     & \texttt{reinvent\_pubchem.prior} (no fine-tuning) \\
+Generation job        & \FILL{SLURM job ID} \\
+Docking job           & \FILL{SLURM job ID} \\
+$|\Valid_1| / \Ngen$  & \FILL{} / 5{,}000 \\
+$\tau$ used           & \FILL{} \\
+$|\Passed_1|$, $\Kk$  & \FILL{} , \FILL{} \\
+$\Tbar_1$ / $\Tstar_1$& \FILL{} / \FILL{} \\
+Hits ($\ge 0.85$)     & \FILL{} \\
+Scaffold count / $D_1$& \FILL{} / \FILL{} \\
+Shared scaffolds with $\Actives$ & \FILL{} \\
+Mean QED / SA         & \FILL{} / \FILL{} \\
+Observations          & \FILL{Two sentences: what did the top-$\Kk$ chemistry
+                        look like? Anything unexpected?} \\
+Problems / deviations & \FILL{Timeouts, dropped molecules, anything you did
+                        differently from the protocol.} \\
+\end{tabular}
+\smallskip
+
+\emph{Expected at $t=1$:} zero or near-zero rediscovery hits and few or no
+shared scaffolds. $\Gmodel_1$ has had no transfer learning and no knowledge of
+either target. This row establishes the floor everything else is measured
+against --- it is a result, not a failure.
+\end{guide}
+
+\subsubsection*{Iteration 2}
+\begin{guide}[Log]
+\begin{tabular}{@{}p{0.28\linewidth}p{0.66\linewidth}@{}}
+Date completed        & \FILL{} \\
+Model $\Gmodel_2$     & \FILL{checkpoint path from iteration 1 fine-tune} \\
+Generation job        & \FILL{} \\
+Docking job           & \FILL{} \\
+$|\Valid_2| / \Ngen$  & \FILL{} / 5{,}000 \\
+$|\Passed_2|$, $\Kk$  & \FILL{} , \FILL{} \\
+$\Tbar_2$ / $\Tstar_2$& \FILL{} / \FILL{} \\
+$\Delta \Tbar$ vs.\ $t=1$ & \FILL{} \\
+Hits ($\ge 0.85$)     & \FILL{} \\
+Scaffold count / $D_2$& \FILL{} / \FILL{} \\
+New dominant scaffolds& \FILL{which ring systems appeared that weren't in
+                        $\TopK_1$?} \\
+Mean QED / SA         & \FILL{} / \FILL{} \\
+Observations          & \FILL{} \\
+Problems / deviations & \FILL{} \\
+\end{tabular}
+\end{guide}
+
+\subsubsection*{Iteration 3}
+\begin{guide}[Log --- copy this block for iterations 4, 5, \dots]
+\begin{tabular}{@{}p{0.28\linewidth}p{0.66\linewidth}@{}}
+Date completed        & \FILL{} \\
+Model $\Gmodel_3$     & \FILL{} \\
+$|\Valid_3| / \Ngen$  & \FILL{} / 5{,}000 \\
+$|\Passed_3|$, $\Kk$  & \FILL{} , \FILL{} \\
+$\Tbar_3$ / $\Tstar_3$& \FILL{} / \FILL{} \\
+$\Delta \Tbar$ vs.\ $t=2$ & \FILL{} \\
+Hits ($\ge 0.85$)     & \FILL{} \\
+Scaffold count / $D_3$& \FILL{} / \FILL{} \\
+Mean QED / SA         & \FILL{} / \FILL{} \\
+Observations          & \FILL{} \\
+Problems / deviations & \FILL{} \\
+\end{tabular}
+\end{guide}
+
+\begin{yourturn}[Then write the p38 prose: 3--4 paragraphs]
+Walk the reader down the columns of \cref{tab:master}, in this order:
+\begin{enumerate}\itemsep0pt
+  \item \textbf{Throughput and gating.} How many molecules survived validity
+        filtering, how many cleared $\tau$, and how the pass rate moved across
+        iterations. A rising pass rate is itself evidence the fine-tuning is
+        working, independent of Tanimoto.
+  \item \textbf{Score enrichment.} How the distribution of $S(m)$ shifted.
+        Give median and IQR, not just the mean.
+  \item \textbf{Convergence.} $\Tbar_t$ and $\Tstar_t$ against the $t=0$ null.
+        State whether the trend is monotone and where it plateaus.
+  \item \textbf{Hits.} How many, at which iteration, and what they resemble.
+        If there are none, say that clearly and report the closest pairs
+        instead --- that is still a quantitative result.
+\end{enumerate}
+\end{yourturn}
+
+\TODO{p38 results prose}
+
+\begin{figrec}[Figure 3 --- convergence curves (the paper's headline figure)]
+$\Tbar_t$ (line, with bootstrap 95\% CI band) and $\Tstar_t$ (line, second
+axis or second panel) versus iteration $t$, one colour per target on shared
+axes, plus a flat dashed \emph{prior-baseline} line at the $t=0$ value and a
+horizontal dashed line at $\thetahit = 0.85$.
+\textbf{Why it matters:} this single panel is the paper's central claim. Make
+it early, even with only two iterations of data --- looking at it will tell you
+whether the loop is working long before the full run finishes.
+\end{figrec}
+
+\begin{figrec}[Figure 4 --- score distribution evolution]
+Violin or ridgeline plot of $S(m)$ over $\TopK_t$, one violin per iteration,
+faceted by target. Overlay the median. This is the plan's
+"progressive enrichment" visualisation.
+\end{figrec}
+
+% \begin{figure}[t]
+%   \centering
+%   \includegraphics[width=0.85\linewidth]{figures/fig3_convergence.pdf}
+%   \caption{Convergence of generated molecules toward the held-out actives.
+%            \TODO{caption}}
+%   \label{fig:convergence}
+% \end{figure}
+
+%-----------------------------------------------------------------------
+\subsection{CDK2}
+\label{sec:results:cdk2}
+
+\begin{guide}[Same log structure --- copy the p38 blocks above]
+Keep the fields identical to \cref{sec:results:p38} so the two targets stay
+directly comparable. Resist the urge to track extra things for one target only;
+asymmetric records make the cross-target comparison in
+\cref{sec:results:cross} much harder to write.
+\end{guide}
+
+\subsubsection*{Iteration 1 --- unbiased prior}
+\begin{guide}[Log]
+\begin{tabular}{@{}p{0.28\linewidth}p{0.66\linewidth}@{}}
+Date completed        & \FILL{} \\
+Model $\Gmodel_1$     & \texttt{reinvent\_pubchem.prior} (no fine-tuning) \\
+Generation job        & \FILL{} \\
+Docking job           & \FILL{} \\
+$|\Valid_1| / \Ngen$  & \FILL{} / 5{,}000 \\
+$\tau$ used           & \FILL{} \\
+$|\Passed_1|$, $\Kk$  & \FILL{} , \FILL{} \\
+$\Tbar_1$ / $\Tstar_1$& \FILL{} / \FILL{} \\
+Hits ($\ge 0.85$)     & \FILL{} \\
+Scaffold count / $D_1$& \FILL{} / \FILL{} \\
+Shared scaffolds with $\Actives$ & \FILL{} \\
+Mean QED / SA         & \FILL{} / \FILL{} \\
+Observations          & \FILL{} \\
+Problems / deviations & \FILL{} \\
+\end{tabular}
+\end{guide}
+
+\subsubsection*{Iteration 2}
+\begin{guide}[Log]
+\begin{tabular}{@{}p{0.28\linewidth}p{0.66\linewidth}@{}}
+Date completed        & \FILL{} \\
+Model $\Gmodel_2$     & \FILL{} \\
+$|\Valid_2| / \Ngen$  & \FILL{} / 5{,}000 \\
+$|\Passed_2|$, $\Kk$  & \FILL{} , \FILL{} \\
+$\Tbar_2$ / $\Tstar_2$& \FILL{} / \FILL{} \\
+$\Delta \Tbar$ vs.\ $t=1$ & \FILL{} \\
+Hits ($\ge 0.85$)     & \FILL{} \\
+Scaffold count / $D_2$& \FILL{} / \FILL{} \\
+New dominant scaffolds& \FILL{} \\
+Mean QED / SA         & \FILL{} / \FILL{} \\
+Observations          & \FILL{} \\
+Problems / deviations & \FILL{} \\
+\end{tabular}
+\end{guide}
+
+\subsubsection*{Iteration 3}
+\begin{guide}[Log --- copy for later iterations]
+\begin{tabular}{@{}p{0.28\linewidth}p{0.66\linewidth}@{}}
+Date completed        & \FILL{} \\
+Model $\Gmodel_3$     & \FILL{} \\
+$|\Valid_3| / \Ngen$  & \FILL{} / 5{,}000 \\
+$|\Passed_3|$, $\Kk$  & \FILL{} , \FILL{} \\
+$\Tbar_3$ / $\Tstar_3$& \FILL{} / \FILL{} \\
+Hits ($\ge 0.85$)     & \FILL{} \\
+Scaffold count / $D_3$& \FILL{} / \FILL{} \\
+Mean QED / SA         & \FILL{} / \FILL{} \\
+Observations          & \FILL{} \\
+Problems / deviations & \FILL{} \\
+\end{tabular}
+\end{guide}
+
+\begin{yourturn}[Then write the CDK2 prose: 3--4 paragraphs]
+Same four-part structure as p38. Where CDK2 behaved differently, say so here in
+factual terms and save the "why" for \cref{sec:discussion}. Note that CDK2's
+benchmark set is roughly a third the size of p38's, which affects $\simmax$
+directly: a smaller $\Actives$ means fewer chances for any generated molecule to
+find a close neighbour. Mention this when comparing raw $\Tbar_t$ values across
+targets --- otherwise the comparison is not apples to apples.
+\end{yourturn}
+
+\TODO{CDK2 results prose}
+
+%-----------------------------------------------------------------------
+\subsection{Chemical evolution across iterations}
+\label{sec:results:chem}
+
+\begin{yourturn}[Write 3--4 paragraphs. This is the interpretability contribution.]
+Structure it as: scaffolds $\rightarrow$ functional groups $\rightarrow$
+feasibility envelope.
+\begin{itemize}\itemsep0pt
+  \item \textbf{Scaffold trajectory.} Did $D_t$ (\cref{eq:scaffolddiv}) hold or
+        collapse? Which scaffolds emerged, at which iteration, and do any
+        resemble known pharmacophores for the target? Name the ring systems
+        explicitly --- a reader who knows kinase chemistry will care whether an
+        adenine mimetic or a hinge-binding motif appeared.
+  \item \textbf{Functional groups.} Which $f_{g,t}$ trends were monotone?
+        Interpret against binding-site character (a deep hydrophobic ATP site
+        should not be enriching hydroxyls indefinitely). Only claim a trend if
+        it holds over $\ge 3$ iterations.
+  \item \textbf{Feasibility envelope.} Did MW, $c\log P$, QED and SA stay within
+        bounds? Report the fraction of $\TopK_t$ violating each Lipinski
+        threshold per iteration. If SA rose steadily, that is a real finding
+        about over-optimisation and belongs in the abstract.
+  \item \textbf{PAINS.} What fraction of top candidates carried a flag, and
+        which catalogue entries.
+\end{itemize}
+\end{yourturn}
+
+\TODO{chemical evolution prose}
+
+\begin{figrec}[Figure 5 --- chemical trajectory (multi-panel, one row per metric)]
+A grid: rows = \{scaffold diversity $D_t$, mean QED, mean SA score,
+mean MW, mean $c\log P$\}, columns = \{p38, CDK2\}. Each panel is a line over
+iteration with a shaded band for the known-actives reference range
+(e.g.\ the actives' interquartile range as a horizontal band). The band is what
+makes the figure readable: it turns "the number moved" into "the number moved
+toward or away from real inhibitors".
+\textbf{Source:} the per-iteration \texttt{*\_comparison\_profile.csv} files
+from the chemical analysis notebooks.
+\end{figrec}
+
+\begin{figrec}[Figure 6 --- scaffold and functional-group evolution]
+\textbf{(a)} Stacked bar of the top 8 Murcko scaffolds' share of $\TopK_t$ per
+iteration, with structures drawn as insets for the 3 most frequent.
+\textbf{(b)} Functional-group frequency $f_{g,t}$ trajectories, one line per
+group, with the actives' frequency as a dashed horizontal reference per group.
+\end{figrec}
+
+\begin{figrec}[Figure 7 --- descriptor-space PCA]
+Actives (grey, fitted space) with $\TopK_t$ overlaid per iteration in a
+sequential colourmap (light $\rightarrow$ dark with increasing $t$). One panel
+per target. If the loop is working, later iterations should visibly migrate
+into the grey cloud. If they do not, that is also worth showing.
+\textbf{Critical:} fit the PCA on actives only, transform both. Do not refit per
+iteration or panels stop being comparable.
+\end{figrec}
+
+%-----------------------------------------------------------------------
+\subsection{Rediscovery hit catalogue}
+\label{sec:results:hits}
+
+\begin{yourturn}[Write 1--2 paragraphs + fill \cref{tab:hits}]
+For each molecule with $\simmax \ge \thetahit$: report the iteration it appeared,
+its similarity, its nearest known active with that active's ChEMBL ID and
+measured $\pICfifty$, and Boltz-2's predicted $\pICfifty$ for the generated
+molecule. If there are no formal hits, retitle this subsection
+"Closest generated--active pairs", report the top 5--10 by $\simmax$, and say
+plainly that no molecule cleared $0.85$. That is an honest and perfectly
+reportable outcome.
+\end{yourturn}
+
+\begin{table}[h]
+\centering
+\caption{Rediscovery hits and closest generated--active pairs.}
+\label{tab:hits}
+\small
+\begin{tabular}{llcllcc}
+\toprule
+Target & Iter & $\simmax$ & Nearest active (ChEMBL ID) & Measured $\pICfifty$ &
+Predicted $\pICfifty$ & PAINS \\
+\midrule
+\FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+\FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+\FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} & \FILL{} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figrec}[Figure 8 --- hit catalogue grid]
+Side-by-side 2D structures: generated molecule (left) next to its nearest known
+active (right), one row per hit, most similar first, annotated with $\simmax$
+and both potency values. \textbf{Source:} \texttt{Draw.MolsToGridImage} in the
+Part 2 analysis notebook already produces exactly this
+(\texttt{*\_closest\_pairs.png}); increase \texttt{subImgSize} and save as SVG
+or PDF for the paper.
+\end{figrec}
+
+%-----------------------------------------------------------------------
+\subsection{Cross-target comparison}
+\label{sec:results:cross}
+
+\begin{yourturn}[Write 2 paragraphs]
+This subsection is the generalisability claim, so it needs care.
+Compare across targets: calibration quality (AUC, correlation), convergence rate
+($\Delta \Tbar$ per iteration, not absolute $\Tbar$), hit iteration, and
+scaffold behaviour. Explicitly control for the confounds:
+different $|\Actives|$ (3{,}860 vs.\ 1{,}402), possibly different $\tau$, and
+different pocket character. If the two targets behaved similarly, that supports
+generalisation; if they diverged, identify which of these three confounds is the
+likeliest explanation and say what experiment would separate them.
+\end{yourturn}
+
+\TODO{cross-target comparison}
+
+%-----------------------------------------------------------------------
+\subsection{Ablations}
+\label{sec:results:ablation}
+
+\begin{guide}[Optional --- include only what you actually ran]
+Candidate ablations, roughly in order of value per unit of GPU time:
+\begin{enumerate}\itemsep0pt
+  \item \textbf{No-gate control:} rank by $-\yhat$ alone with no $\pbind$
+        filter. Directly tests whether the gate matters. Cheapest and most
+        informative.
+  \item \textbf{Alternative scoring} (Options A and C from
+        \cref{sec:methods:score}).
+  \item \textbf{Gate sensitivity:} rerun with $\tau \pm 0.1$.
+  \item \textbf{Corpus size:} $\Kk = 200$ vs.\ $500$ --- probes the
+        exploitation/diversity trade-off.
+  \item \textbf{Random-corpus control:} fine-tune on $\Kk$ \emph{randomly
+        chosen} passing molecules instead of the top-$\Kk$. If $\Tbar_t$ rises
+        anyway, your improvement is coming from fine-tuning on anything, not
+        from the scoring signal. This is the single most convincing control in
+        the whole paper --- run it if you run only one.
+\end{enumerate}
+Delete this subsection entirely if you ran none.
+\end{guide}
+
+\TODO{ablations, or delete this subsection}
+
+%=======================================================================
+\section{Discussion}
+\label{sec:discussion}
+%=======================================================================
+
+\begin{guide}[Optional section --- keep if the venue expects it]
+Four short blocks:
+\begin{enumerate}\itemsep0pt
+  \item \textbf{What the results mean.} One paragraph tying the convergence
+        curves back to the claim in \cref{sec:intro:contrib}.
+  \item \textbf{Limitations.} Predicted rather than measured affinity; possible
+        overlap between Boltz-2's training data and the benchmark actives; two
+        kinase targets do not test non-kinase generalisation; no synthesis or
+        assay; single random seed if that is the case.
+  \item \textbf{Comparison to prior work.} Where your numbers sit relative to
+        the closed-loop papers reviewed in \cref{sec:intro:closedloop}.
+  \item \textbf{Future work.} A non-kinase target; multi-objective scoring with
+        SA/QED terms in the objective rather than only as monitoring; an
+        experimental validation arm.
+\end{enumerate}
+Do not use the limitations paragraph to pre-empt criticism you could instead fix.
+\end{guide}
+
+\TODO{discussion, or delete}
+
+%=======================================================================
+\section*{Author contributions}
+\begin{guide}[CRediT taxonomy --- fill in before submission]
+Use the standard categories: Conceptualization, Methodology, Software,
+Validation, Formal analysis, Investigation, Data curation, Writing --- original
+draft, Writing --- review \& editing, Visualization, Supervision, Funding
+acquisition. Every author needs at least one. Agree on this early; it is far
+more awkward to negotiate the week before submission.
+\end{guide}
+\TODO{author contributions}
+
+\section*{Acknowledgements}
+\begin{guide}[Do not forget the ACCESS citation]
+Computational work used the Anvil cluster at Purdue University through NSF
+ACCESS allocation \texttt{bio220114}. ACCESS requires a specific
+acknowledgement wording and citation --- look it up on the ACCESS site and use
+their exact text.
+\end{guide}
+\TODO{acknowledgements + ACCESS allocation wording}
+
+%=======================================================================
+\bibliography{references}
+%=======================================================================
+
+\end{document}
